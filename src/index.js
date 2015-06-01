@@ -2,39 +2,43 @@
 
 var owe = require("owe-core"),
 	path = require("path"),
+	querystring = require("querystring"),
 	send = require("send");
 
-function fs(options) {
+function oweFs(options) {
 
-	return {
-		router() {
-			return this.value;
-		},
-		closer(data) {
-			var isHttp = this.origin.type === "http",
-				request = isHttp ? this.origin.request : {
-					headers: {}
-				},
-				url = path.join.apply(path, this.location),
-				stream = send(request, url, options);
+	return owe({}, function router() {
+		return this.value;
+	}, function closer(data) {
+		var isHttp = this.origin.type === "http",
+			request = isHttp ? this.origin.request : {
+				headers: {}
+			},
+			url = this.location.map(querystring.escape.bind(querystring)).join("/"),
+			stream = send(request, url, options);
 
-			if(!isHttp) {
+		if(!isHttp) {
+			let pipe = stream.pipe.bind(stream);
 
-				let pipe = stream.pipe.bind(stream);
+			stream.pipe = function pipe(destination) {
+				destination = Object.create(destination);
 
-				stream.pipe = function pipe(destination) {
-					destination = Object.create(destination);
+				destination._headers = {};
+				destination.setHeader = destination.removeHeader = function() {};
 
-					destination._headers = {};
-					destination.setHeader = destination.removeHeader = function() {};
-
-					pipe(destination);
-				};
-			}
-
-			return stream;
+				pipe(destination);
+			};
 		}
-	};
+
+		return owe.resource(stream, {
+			type: "file",
+			stream: true
+		});
+	});
 }
 
-module.exports = fs;
+oweFs.api = function(options) {
+	return owe.api(oweFs(options));
+};
+
+module.exports = oweFs;

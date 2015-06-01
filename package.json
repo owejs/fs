@@ -29,7 +29,8 @@
 		"owe-core": "^0.4"
 	},
 	"devDependencies": {
-		"owe.js": "^0.4.2",
+		"owe.js": "^0.4",
+		"owe-http": "^0.2",
 		"gulp": "3.8.11",
 		"gulp-mocha": "2.1.0",
 		"expect.js": "0.3.1"
