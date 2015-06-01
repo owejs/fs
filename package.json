@@ -1,0 +1,40 @@
+{
+	"name": "owe-fs",
+	"version": "0.1.0",
+	"description": "A file system server for owe.js.",
+	"keywords": [
+		"owe",
+		"owe.js",
+		"fs",
+		"file",
+		"system",
+		"static"
+	],
+	"license": "LGPL-3.0",
+	"author": {
+		"name": "Clemens Damke",
+		"email": "clemens@cortys.de",
+		"url": "http://www.cortys.de"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/runnr/owe-fs.git"
+	},
+	"main": "src/index.js",
+	"dependencies": {
+		"owe-core": "^0.4",
+		"send": "0.12.3"
+	},
+	"peerDependencies": {
+		"owe-core": "^0.4"
+	},
+	"devDependencies": {
+		"owe.js": "^0.4.2",
+		"gulp": "3.8.11",
+		"gulp-mocha": "2.1.0",
+		"expect.js": "0.3.1"
+	},
+	"scripts": {
+		"test": "./node_modules/.bin/mocha"
+	}
+}
