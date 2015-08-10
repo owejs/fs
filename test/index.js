@@ -5,6 +5,24 @@ var http = require("http"),
 	oweFs = require("../src"),
 	oweHttp = require("owe-http");
 
-http.createServer(oweHttp(oweFs.api({
-	root: __dirname
-}))).listen(5004);
+var fs = oweFs({
+	root: __dirname,
+	onError: function(err, isHttp) {
+		if(!isHttp)
+			return err;
+
+		return `<h1>Error ${err.status}</h1>`;
+	}
+});
+
+fs("derp/index.html", true).then(function(res) {
+	console.log(res.toString());
+}, function(err) {
+	console.log(err);
+});
+
+http.createServer(
+	oweHttp(
+		owe.api(fs)
+	)
+).listen(5004);
