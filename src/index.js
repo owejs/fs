@@ -25,15 +25,42 @@ function oweFs(options) {
 			resultStream = fileStream;
 
 		if(!isHttp) {
-			resultStream = new stream.PassThrough();
+			var passThroughStream = fakeDestination(new stream.PassThrough(), headerObject),
+				choseFileStream;
+
+			resultStream = fakeDestination(new stream.PassThrough(), headerObject);
 
 			fileStream.on("error", function(err) {
-				resultStream.emit("error", err);
+				if(choseFileStream === undefined)
+					resultStream.emit("error", err);
+				else
+					passThroughStream.emit("error", err);
 			});
 
-			fakeDestination(resultStream, headerObject);
+			fileStream.on("file", function() {
 
-			fileStream.pipe(resultStream);
+				passThroughStream.on("error", function(err) {
+					resultStream.emit("error", err);
+				});
+
+				choseFileStream = true;
+				passThroughStream.pipe(resultStream);
+			});
+
+			fileStream.on("directory", function() {
+				var redirectStream = send({
+					headers: {}
+				}, url + "/", options);
+
+				redirectStream.on("error", function(err) {
+					resultStream.emit("error", err);
+				});
+
+				choseFileStream = false;
+				redirectStream.pipe(resultStream);
+			});
+
+			fileStream.pipe(passThroughStream);
 		}
 
 		var oldAdder = resultStream.addListener.bind(resultStream);
@@ -65,10 +92,6 @@ function oweFs(options) {
 
 		return new Promise(function(resolve, reject) {
 			var result = [];
-
-			setTimeout(function() {
-				console.log("headers =", headers);
-			}, 500);
 
 			sendStream.once("error", function(err) {
 				reject(err);
