@@ -7,8 +7,7 @@ var http = require("http"),
 
 var fs = oweFs({
 	root: __dirname,
-	index: false,
-	onError: function(err, isHttp) {
+	onError(err, isHttp) {
 		if(!isHttp)
 			return err;
 
@@ -17,7 +16,8 @@ var fs = oweFs({
 });
 
 fs("derp", true).then(function(res) {
-	console.log("" + res);
+	console.log(res);
+	console.log(owe.resourceData(res));
 }, function(err) {
 	console.log(err);
 });

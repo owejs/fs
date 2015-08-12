@@ -22,27 +22,35 @@ function oweFs(options) {
 		var fileStream = send(isHttp ? request : {
 				headers: {}
 			}, url, options),
-			resultStream = fileStream;
+			resultStream = fileStream,
+			resultResource = {
+				file: true,
+				stream: true
+			};
+
+		if(!headerObject)
+				headerObject = {};
 
 		if(!isHttp) {
-			var passThroughStream = fakeDestination(new stream.PassThrough(), headerObject),
+
+			var passThroughHeader = Object.create(headerObject),
+				resultHeader = Object.create(headerObject),
+				passThroughStream = fakeDestination(new stream.PassThrough(), passThroughHeader),
 				choseFileStream;
 
-			resultStream = fakeDestination(new stream.PassThrough(), headerObject);
+			resultStream = fakeDestination(new stream.PassThrough(), resultHeader);
 
 			fileStream.on("error", function(err) {
-				if(choseFileStream === undefined)
+				if(choseFileStream !== false)
 					resultStream.emit("error", err);
-				else
-					passThroughStream.emit("error", err);
+			});
+
+			fileStream.on("stream", function() {
+				if(choseFileStream !== false)
+					resultResource.contentType = passThroughHeader["Content-Type"];
 			});
 
 			fileStream.on("file", function() {
-
-				passThroughStream.on("error", function(err) {
-					resultStream.emit("error", err);
-				});
-
 				choseFileStream = true;
 				passThroughStream.pipe(resultStream);
 			});
@@ -51,6 +59,10 @@ function oweFs(options) {
 				var redirectStream = send({
 					headers: {}
 				}, url + "/", options);
+
+				redirectStream.on("stream", function() {
+					resultResource.contentType = resultHeader["Content-Type"];
+				});
 
 				redirectStream.on("error", function(err) {
 					resultStream.emit("error", err);
@@ -77,10 +89,7 @@ function oweFs(options) {
 			return oldAdder(event, usedListener);
 		};
 
-		return owe.resource(resultStream, {
-			file: true,
-			stream: true
-		});
+		return owe.resource(resultStream, resultResource);
 	}
 
 	function servedFs(path, asPromise) {
@@ -99,7 +108,8 @@ function oweFs(options) {
 
 			sendStream.on("end", function() {
 				resolve(owe.resource(Buffer.concat(result), {
-					file: true
+					file: true,
+					contentType: owe.resourceData(sendStream).contentType
 				}));
 			});
 
