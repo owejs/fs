@@ -1,11 +1,11 @@
 "use strict";
 
-var http = require("http"),
-	owe = require("owe.js"),
-	oweFs = require("../src"),
-	oweHttp = require("owe-http");
+const http = require("http");
+const owe = require("owe.js");
+const oweFs = require("../src");
+const oweHttp = require("owe-http");
 
-var fs = oweFs({
+const fs = oweFs({
 	root: __dirname,
 	onError(err, isHttp) {
 		if(!isHttp)
@@ -15,12 +15,10 @@ var fs = oweFs({
 	}
 });
 
-fs("derp", true).then(function(res) {
-	console.log(res);
-	console.log(owe.resourceData(res));
-}, function(err) {
-	console.log(err);
-});
+fs("derp", true).then(res => {
+	console.log(String(res));
+	console.log(owe.resource(res));
+}, err => console.log(err));
 
 http.createServer(
 	oweHttp(

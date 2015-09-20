@@ -1,11 +1,11 @@
 "use strict";
 
-var owe = require("owe-core"),
-	path = require("path"),
-	querystring = require("querystring"),
-	stream = require("stream"),
-	fs = require("fs"),
-	send = require("send");
+const owe = require("owe-core");
+const path = require("path");
+const querystring = require("querystring");
+const stream = require("stream");
+const fs = require("fs");
+const send = require("send");
 
 function oweFs(options) {
 
@@ -14,57 +14,57 @@ function oweFs(options) {
 
 	options = Object.create(options);
 
-	options.onError = options.onError || function(err) {
-		return err;
-	};
+	options.onError = options.onError || (err => err);
 
 	function streamGenerator(isHttp, request, url, headerObject) {
-		var fileStream = send(isHttp ? request : {
-				headers: {}
-			}, url, options),
-			resultStream = fileStream,
-			resultResource = {
-				file: true,
-				stream: true
-			};
+		const fileStream = send(isHttp ? request : {
+			headers: {}
+		}, url, options);
+		const resultResource = {
+			file: true,
+			stream: true
+		};
+
+		let resultStream = fileStream;
 
 		if(!headerObject)
-				headerObject = {};
+			headerObject = {};
 
 		if(!isHttp) {
 
-			var passThroughHeader = Object.create(headerObject),
-				resultHeader = Object.create(headerObject),
-				passThroughStream = fakeDestination(new stream.PassThrough(), passThroughHeader),
-				choseFileStream;
+			const passThroughHeader = Object.create(headerObject);
+			const resultHeader = Object.create(headerObject);
+			const passThroughStream = fakeDestination(new stream.PassThrough(), passThroughHeader);
+
+			let choseFileStream;
 
 			resultStream = fakeDestination(new stream.PassThrough(), resultHeader);
 
-			fileStream.on("error", function(err) {
+			fileStream.on("error", err => {
 				if(choseFileStream !== false)
 					resultStream.emit("error", err);
 			});
 
-			fileStream.on("stream", function() {
+			fileStream.on("stream", () => {
 				if(choseFileStream !== false)
 					resultResource.contentType = passThroughHeader["Content-Type"];
 			});
 
-			fileStream.on("file", function() {
+			fileStream.on("file", () => {
 				choseFileStream = true;
 				passThroughStream.pipe(resultStream);
 			});
 
 			fileStream.on("directory", function() {
-				var redirectStream = send({
+				const redirectStream = send({
 					headers: {}
 				}, url + "/", options);
 
-				redirectStream.on("stream", function() {
+				redirectStream.on("stream", () => {
 					resultResource.contentType = resultHeader["Content-Type"];
 				});
 
-				redirectStream.on("error", function(err) {
+				redirectStream.on("error", err => {
 					resultStream.emit("error", err);
 				});
 
@@ -75,11 +75,11 @@ function oweFs(options) {
 			fileStream.pipe(passThroughStream);
 		}
 
-		var oldAdder = resultStream.addListener.bind(resultStream);
+		const oldAdder = resultStream.addListener.bind(resultStream);
 
 		resultStream.addListener = resultStream.on = function(event, listener) {
 
-			var usedListener = listener;
+			let usedListener = listener;
 
 			if(event === "error")
 				usedListener = function onError(err) {
@@ -93,39 +93,36 @@ function oweFs(options) {
 	}
 
 	function servedFs(path, asPromise) {
-		var headers = {},
-			sendStream = streamGenerator(false, null, path, headers);
+		const headers = {};
+		const sendStream = streamGenerator(false, null, path, headers);
 
 		if(!asPromise)
 			return sendStream;
 
-		return new Promise(function(resolve, reject) {
-			var result = [];
+		return new Promise((resolve, reject) => {
+			const result = [];
 
-			sendStream.once("error", function(err) {
-				reject(err);
-			});
+			sendStream.once("error", err => reject(err));
 
-			sendStream.on("end", function() {
+			sendStream.on("end", () => {
 				resolve(owe.resource(Buffer.concat(result), {
 					file: true,
-					contentType: owe.resourceData(sendStream).contentType
+					contentType: owe.resource(sendStream).contentType
 				}));
 			});
 
-			sendStream.on("data", function(data) {
-				result.push(data);
-			});
+			sendStream.on("data", data => result.push(data));
 
 		});
 	}
 
-	var result = owe(servedFs, function router() {
+	const result = owe(servedFs, function router() {
 			return this.value;
 		}, function closer(data) {
 			return streamGenerator(this.origin.http, this.origin.request, this.location.map(querystring.escape.bind(querystring)).join("/"));
-		}),
-		api;
+		});
+
+	let api;
 
 	Object.defineProperty(servedFs, "api", {
 		enumerable: false,
@@ -145,8 +142,8 @@ oweFs.api = function(options) {
 function fakeDestination(destination, headerObject, clone) {
 	destination = clone ? Object.create(destination) : destination;
 
-	destination._headers = headerObject || {};
-	destination.setHeader = headerObject ? function(header, val) {
+	destination._headers = headerObject || {}; // jscs: ignore disallowDanglingUnderscores
+	destination.setHeader = headerObject ? (header, val) => {
 		headerObject[header] = val;
 	} : function() {};
 	destination.finished = false;
