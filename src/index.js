@@ -1,10 +1,8 @@
 "use strict";
 
 const owe = require("owe-core");
-const path = require("path");
 const querystring = require("querystring");
 const stream = require("stream");
-const fs = require("fs");
 const send = require("send");
 
 function oweFs(options) {
@@ -55,10 +53,10 @@ function oweFs(options) {
 				passThroughStream.pipe(resultStream);
 			});
 
-			fileStream.on("directory", function() {
+			fileStream.on("directory", () => {
 				const redirectStream = send({
 					headers: {}
-				}, url + "/", options);
+				}, `${url}/`, options);
 
 				redirectStream.on("stream", () => {
 					resultResource.contentType = resultHeader["Content-Type"];
@@ -117,10 +115,10 @@ function oweFs(options) {
 	}
 
 	const result = owe(servedFs, function router() {
-			return this.value;
-		}, function closer(data) {
-			return streamGenerator(this.origin.http, this.origin.request, this.location.map(querystring.escape.bind(querystring)).join("/"));
-		});
+		return this.value;
+	}, function closer() {
+		return streamGenerator(this.origin.http, this.origin.request, this.route.map(querystring.escape.bind(querystring)).join("/"));
+	});
 
 	let api;
 
@@ -142,7 +140,7 @@ oweFs.api = function(options) {
 function fakeDestination(destination, headerObject, clone) {
 	destination = clone ? Object.create(destination) : destination;
 
-	destination._headers = headerObject || {}; // jscs: ignore disallowDanglingUnderscores
+	destination._headers = headerObject || {}; // eslint-disable-line no-underscore-dangle
 	destination.setHeader = headerObject ? (header, val) => {
 		headerObject[header] = val;
 	} : function() {};
