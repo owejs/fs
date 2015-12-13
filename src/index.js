@@ -114,10 +114,22 @@ function oweFs(options) {
 		});
 	}
 
-	const result = owe(servedFs, function router() {
-		return this.value;
-	}, function closer() {
-		return streamGenerator(this.origin.http, this.origin.request, this.route.map(querystring.escape.bind(querystring)).join("/"));
+	function closer() {
+		return streamGenerator(this.origin.http, this.origin.request, this.route.slice(+this.value.skip).map(querystring.escape.bind(querystring)).join("/"));
+	}
+
+	const result = owe(servedFs, {
+		router() {
+			return owe({
+				skip: this.route.length
+			}, {
+				router() {
+					return this.value;
+				},
+				closer
+			});
+		},
+		closer
 	});
 
 	let api;
