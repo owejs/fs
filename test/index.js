@@ -11,6 +11,8 @@ const fs = oweFs({
 		if(!isHttp)
 			return err;
 
+		console.error(err);
+
 		return `<h1>Error ${err.status}</h1>`;
 	}
 });
@@ -18,7 +20,7 @@ const fs = oweFs({
 fs("derp", true).then(res => {
 	console.log(String(res));
 	console.log(owe.resource(res));
-}, err => console.log(err));
+}, err => console.error(err));
 
 http.createServer(
 	oweHttp(

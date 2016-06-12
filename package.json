@@ -1,6 +1,6 @@
 {
 	"name": "owe-fs",
-	"version": "0.10.0",
+	"version": "0.11.0",
 	"description": "A file system server for owe.js.",
 	"keywords": [
 		"owe",
@@ -21,29 +21,32 @@
 		"url": "https://github.com/runnr/owe-fs.git"
 	},
 	"engines": {
-		"node": ">=5.0"
+		"node": ">=6.0"
 	},
 	"main": "src/index.js",
 	"dependencies": {
-		"send": "0.13.0"
+		"send": "0.14.1"
 	},
 	"peerDependencies": {
-		"owe-core": "^0.10"
+		"owe-core": "0.11.x"
 	},
 	"devDependencies": {
-		"eslint": "1.10.3",
-		"expect.js": "0.3.1",
-		"express": "latest",
-		"gulp": "3.9.0",
-		"gulp-eslint": "1.1.1",
+		"eslint": "2.12.0",
+		"eslint-config-cortys": "1.x",
+		"chai": "3.5.0",
+		"chai-as-promised": "5.3.0",
+		"express": "4.13.4",
+		"gulp": "3.9.1",
+		"gulp-eslint": "2.0.0",
 		"gulp-mocha": "2.2.0",
-		"mocha": "2.3.2",
-		"owe-core": "^0.10",
-		"owe-http": "^0.10",
-		"owe.js": "^0.10",
-		"run-sequence": "1.1.5"
+		"mocha": "2.5.3",
+		"owe-core": "0.11.x",
+		"owe-http": "0.11.x",
+		"owe.js": "0.11.x",
+		"run-sequence": "1.2.1"
 	},
 	"scripts": {
-		"test": "./node_modules/gulp/bin/gulp.js test"
+		"test": "./node_modules/.bin/gulp test",
+		"prepublish": "./node_modules/.bin/gulp test"
 	}
 }

@@ -7,7 +7,7 @@ const send = require("send");
 
 function oweFs(options) {
 
-	if(typeof options !== "object" || options === null)
+	if(!options || typeof options !== "object")
 		options = {};
 
 	options = Object.create(options);
@@ -29,7 +29,6 @@ function oweFs(options) {
 			headerObject = {};
 
 		if(!isHttp) {
-
 			const passThroughHeader = Object.create(headerObject);
 			const resultHeader = Object.create(headerObject);
 			const passThroughStream = fakeDestination(new stream.PassThrough(), passThroughHeader);
@@ -76,7 +75,6 @@ function oweFs(options) {
 		const oldAdder = resultStream.addListener.bind(resultStream);
 
 		resultStream.addListener = resultStream.on = function(event, listener) {
-
 			let usedListener = listener;
 
 			if(event === "error")
@@ -114,17 +112,19 @@ function oweFs(options) {
 		});
 	}
 
-	function closer() {
-		return streamGenerator(this.origin.http, this.origin.request, this.route.slice(+this.value.skip).map(querystring.escape.bind(querystring)).join("/"));
+	function closer(data, state) {
+		return streamGenerator(state.origin.http,
+			state.origin.request,
+			state.route.slice(+state.value.skip).map(querystring.escape.bind(querystring)).join("/"));
 	}
 
-	const result = owe(servedFs, {
-		router() {
+	owe(servedFs, {
+		router(destination, state) {
 			return owe({
-				skip: this.route.length
+				skip: state.route.length
 			}, {
 				router() {
-					return this.value;
+					return state.value;
 				},
 				closer
 			});
@@ -134,15 +134,23 @@ function oweFs(options) {
 
 	let api;
 
-	Object.defineProperty(servedFs, "api", {
-		enumerable: false,
-		configurable: false,
-		get() {
-			return api || (api = owe.api(result));
+	Object.defineProperties(servedFs, {
+		skip: {
+			enumerable: false,
+			configurable: false,
+			writable: false,
+			value: 0
+		},
+		api: {
+			enumerable: false,
+			configurable: false,
+			get() {
+				return api || (api = owe.api(servedFs));
+			}
 		}
 	});
 
-	return result;
+	return servedFs;
 }
 
 oweFs.api = function(options) {
