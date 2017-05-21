@@ -39,7 +39,7 @@
 		"gulp": "3.9.1",
 		"gulp-eslint": "3.0.1",
 		"gulp-mocha": "4.3.1",
-		"mocha": "3.3.0",
+		"mocha": "3.4.1",
 		"owe-core": "0.11.x",
 		"owe-http": "0.11.x",
 		"owe.js": "0.11.x",
