@@ -25,7 +25,7 @@
 	},
 	"main": "src/index.js",
 	"dependencies": {
-		"send": "0.15.4"
+		"send": "0.16.0"
 	},
 	"peerDependencies": {
 		"owe-core": "0.11.x"
