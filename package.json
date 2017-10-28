@@ -31,7 +31,7 @@
 		"owe-core": "0.11.x"
 	},
 	"devDependencies": {
-		"eslint": "4.4.0",
+		"eslint": "4.10.0",
 		"eslint-config-cortys": "1.x",
 		"chai": "3.5.0",
 		"chai-as-promised": "6.0.0",
