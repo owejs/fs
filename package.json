@@ -25,25 +25,26 @@
 	},
 	"main": "src/index.js",
 	"dependencies": {
-		"send": "0.15.3"
+		"send": "0.15.4"
 	},
 	"peerDependencies": {
 		"owe-core": "0.11.x"
 	},
 	"devDependencies": {
-		"eslint": "3.18.0",
+		"eslint": "4.13.1",
 		"eslint-config-cortys": "1.x",
-		"chai": "3.5.0",
+		"chai": "4.1.2",
 		"chai-as-promised": "7.1.1",
+
 		"express": "4.15.2",
 		"gulp": "3.9.1",
 		"gulp-eslint": "3.0.1",
 		"gulp-mocha": "4.3.1",
-		"mocha": "3.4.1",
+		"mocha": "4.0.1",
 		"owe-core": "0.11.x",
 		"owe-http": "0.11.x",
 		"owe.js": "0.11.x",
-		"run-sequence": "1.2.2"
+		"run-sequence": "2.2.0"
 	},
 	"scripts": {
 		"test": "./node_modules/.bin/gulp test",
