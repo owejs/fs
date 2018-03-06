@@ -40,7 +40,7 @@
 		"gulp": "3.9.1",
 		"gulp-eslint": "4.0.2",
 		"gulp-mocha": "4.3.1",
-		"mocha": "5.0.1",
+		"mocha": "5.0.2",
 		"owe-core": "0.11.x",
 		"owe-http": "0.11.x",
 		"owe.js": "0.11.x",
